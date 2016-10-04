@@ -22,9 +22,10 @@ function fetch(method, path, params = undefined, options = {body: null}) {
   if (params !== undefined && method !== 'GET') options.body = JSON.stringify(params);
   return universalFetch(method === 'GET' ? withQueryString(path, params) : path, Object.assign(defaults, options)).then(response => {
     if (response.status !== 204) {
-      const json = response.json();
-      if (response.status >= 400) throw new Error(response.message);
-      return json;
+      return response.json().then(content => {
+        if (response.status >= 400) throw new Error(content.message);
+        return content;
+      });
     }
   });
 }
