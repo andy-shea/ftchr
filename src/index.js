@@ -26,12 +26,10 @@ function parseResponse(response) {
     if (isJsonResponse(response)) {
       if (response.status === 204) resolve({_res: response});
       else response.json().then(function (contents) {
-        if (response.status >= 400) reject(contents);
-        else {
-          const jsonResponse = isPlainObject(contents) ? contents : {contents};
-          jsonResponse._res = response;
-          resolve(jsonResponse);
-        };
+        const jsonResponse = isPlainObject(contents) ? contents : {contents};
+        jsonResponse._res = response;
+        if (response.status >= 400) reject(jsonResponse);
+        else resolve(jsonResponse);
       });
     }
     else if (response.status >= 400) reject(response);

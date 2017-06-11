@@ -71,13 +71,9 @@ setDefaults({
 
 ### Response Handling
 
-If the response content-type is `application/json` and the status is anything but `204: No Content`, the response will be automatically parsed.
-An exception will be thrown if the status code is greater than or equal to `400`, with a message set to that returned from the server.
-**Note: the server must return an object containing a `message` key with the corresponding error as the value**
+If the response content-type is `application/json` and the status is anything but `204: No Content`, the response will be automatically parsed before being returned. If the response parsed is not an object, a new object will be returned with the response added under the key `contents`. **Note: The original response from `fetch` will always be accessible with the key `_res`.**
 
-If the value returned from the server is not an object, it will be added to the response with the key `contents`.
-
-**Note: The original response from `fetch` will always be accessible with the key `_res`.**
+For all other content-types the response will be returned as is.
 
 ## Licence
 
