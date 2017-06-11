@@ -58,7 +58,7 @@ setDefaults({
   }
 });
 ```
-**Note: the defaults out of the box are as follows:***
+**Note: the defaults out of the box are as follows:**
 ```javascript
 {
   credentials: 'same-origin',
