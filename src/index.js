@@ -22,15 +22,21 @@ function isJsonResponse(res) {
 }
 
 function parseResponse(response) {
-  return Promise.resolve().then(() => {
-    if (isJsonResponse(response) && response.status !== 204) {
-      return response.json().then(contents => {
-        if (response.status >= 400) throw new Error(contents.message);
-        return isPlainObject(contents) ? contents : {contents};
+  return new Promise((resolve, reject) => {
+    if (isJsonResponse(response)) {
+      if (response.status === 204) resolve({_res: response});
+      else response.json().then(function (contents) {
+        if (response.status >= 400) reject(contents);
+        else {
+          const jsonResponse = isPlainObject(contents) ? contents : {contents};
+          jsonResponse._res = response;
+          resolve(jsonResponse);
+        };
       });
     }
-    return {};
-  }).then(contents => ({...contents, _res: response}));
+    else if (response.status >= 400) reject(response);
+    else resolve(response);
+  });
 }
 
 function withQueryString(path, params = {}) {
