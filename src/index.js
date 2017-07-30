@@ -23,17 +23,12 @@ function isJsonResponse(res) {
 
 function parseResponse(response) {
   return new Promise((resolve, reject) => {
-    if (isJsonResponse(response)) {
-      if (response.status === 204) resolve({_res: response});
-      else response.json().then(function (contents) {
-        const jsonResponse = isPlainObject(contents) ? contents : {contents};
-        jsonResponse._res = response;
-        if (response.status >= 400) reject(jsonResponse);
-        else resolve(jsonResponse);
-      });
-    }
-    else if (response.status >= 400) reject(response);
-    else resolve(response);
+    if (response.status === 204) resolve(response);
+    Promise.resolve(isJsonResponse(response) ? response.json() : null).then(contents => {
+      response.contents = contents;
+      if (response.status >= 400) reject(response);
+      else resolve(response);
+    })
   });
 }
 

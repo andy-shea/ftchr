@@ -71,8 +71,7 @@ setDefaults({
 
 ### Response Handling
 
-If the response content-type is `application/json` and the status is anything but `204: No Content`, the response will be automatically parsed before being returned. If the response parsed is not an object, a new object will be returned with the response added under the key `contents`. **Note: The original response from `fetch` will always be accessible with the key `_res`.**
-
+If the response content-type is `application/json` and the status is anything but `204: No Content`, the response body will be automatically parsed and added back to the response with the key `contents`.
 For all other content-types the response will be returned as is.
 
 ## Licence
