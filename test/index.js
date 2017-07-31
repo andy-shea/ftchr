@@ -1,3 +1,4 @@
+import test from 'tape';
 import testWithProvision from 'tape-pencil';
 import proxyquire from 'proxyquire';
 
@@ -156,4 +157,21 @@ testWithProvision(htmlFetch(200, body), 'an html response with a 2xx status is r
     t.equals(text, body, 'the response is returned as resolved param');
     t.end();
   });
+});
+
+testWithProvision(jsonFetch(204), 'a json response with a 204 status is not parsed', (t, {get}) => {
+  get('/foo').then(res => {
+    t.equals(typeof res.contents, 'undefined', 'only the original response is returned');
+    t.pass('does not error trying to json decode an undefined value');
+    t.end();
+  });
+});
+
+test('can override Promise implementation', t => {
+  const universalFetch = {};
+  const CustomPromise = () => {};
+  const fetch = proxyquire('../src', {'isomorphic-fetch': universalFetch});
+  fetch.setPromise(CustomPromise)
+  t.equals(universalFetch.Promise, CustomPromise, 'the promise is overridden');
+  t.end();
 });

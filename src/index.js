@@ -2,8 +2,6 @@ import qs from 'qs';
 import universalFetch from 'isomorphic-fetch';
 import isPlainObject from 'lodash.isplainobject';
 
-universalFetch.Promise = require('bluebird');
-
 let defaults = {
   credentials: 'same-origin',
   headers: {
@@ -14,6 +12,10 @@ let defaults = {
 
 export function setDefaults(defaultOptions) {
   defaults = defaultOptions;
+}
+
+export function setPromise(Promise) {
+  universalFetch.Promise = Promise;
 }
 
 function isJsonResponse(res) {
@@ -60,5 +62,3 @@ export const get = fetch.bind(undefined, 'GET');
 export const post = fetch.bind(undefined, 'POST');
 export const put = fetch.bind(undefined, 'PUT');
 export const del = fetch.bind(undefined, 'DELETE');
-
-export default {get, post, put, del, setDefaults};
