@@ -46,33 +46,38 @@ For example, to configure the cookie to be sent in a CORS request:
 post('https://someothersite.com/api/foo', {bar: 'baz'}, {credentials: 'include'})
 ```
 
-To configure the default options for all future requests, use the `setDefault` function:
+To return a set of fetch functions configured with default options for all future requests, use the `withDefaults` function:
 ```javascript
-import {setDefaults} from 'ftchr';
+import withDefaults from 'ftchr';
 
-setDefaults({
-  credentials: 'include'
-  headers: {
-    Accept: 'text/html',
-    'Content-Type': 'application/x-www-form-urlencoded'
-  }
-});
-```
-**Note: the defaults out of the box are as follows:**
-```javascript
-{
+const {get, post, put, patch, delete} = withDefaults({
   credentials: 'same-origin',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json'
   }
-}
+});
+
+post('/test'); // performs post request with same-origin credentials and json accept/content-type
 ```
 
 ### Response Handling
 
 If the response content-type is `application/json` and the status is anything but `204: No Content`, the response body will be automatically parsed and added back to the response with the key `contents`.
 For all other content-types the response will be returned as is.
+
+To override the response returned, you can provide a function as the second parameter to `withDefaults` which takes the original response and should return the necessary information as required.
+For example, to automatically save any bearer tokens in a cookie after a request:
+```javascript
+const fetch = withDefaults({}, response => {
+  const authorisation = response.headers.get('Authorization');
+  if (authorisation) {
+    const [type, token] = authorisation.split(' ');
+    if (type === 'Bearer') cookies.set('token', token);
+  }
+  return response;
+});
+```
 
 ## Licence
 

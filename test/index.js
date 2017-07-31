@@ -100,16 +100,15 @@ testWithProvision(jsonFetch(204), 'get() params are added to existing query stri
   });
 });
 
-testWithProvision(jsonFetch(204), 'can override default req options', (t, {get}) => {
+testWithProvision(jsonFetch(204), 'can pass in req options', (t, {get}) => {
   get('/foo', undefined, {credentials: 'include'}).then(({url, options}) => {
-    t.equals(options.credentials, 'include', 'credentials is overidden');
-    t.equals(options.headers.Accept, 'application/json', 'other defaults remain unchanged');
+    t.equals(options.credentials, 'include', '"credentials" is overidden');
     t.end();
   });
 });
 
 testWithProvision(jsonFetch(204), 'post() parameters serialized into body as json on application/json content type', (t, {post}) => {
-  post('/foo', {bar: 'baz', hello: 'world'}).then(({url, options}) => {
+  post('/foo', {bar: 'baz', hello: 'world'}, {headers: {'Content-Type': 'application/json'}}).then(({url, options}) => {
     t.equals(options.body, '{"bar":"baz","hello":"world"}', 'body is JSON string of parameters');
     t.equals(url, '/foo', 'url remains the same');
     t.end();
@@ -130,16 +129,13 @@ testWithProvision(jsonFetch(204), 'post() parameters serialized as is into body 
   });
 });
 
-testWithProvision(jsonFetch(204), 'setting default values affects all future fetches', (t, {get, del, put, setDefaults}) => {
+testWithProvision(jsonFetch(204), 'setting default values affects all future fetches', (t, {default: withDefaults}) => {
+  const {get, del} = withDefaults({headers: {Accept: 'application/json'}});
   get('/foo').then(({url, options}) => {
-    t.equals(options.headers['Accept'], 'application/json', 'original accept header set to json');
-    setDefaults({headers: {Accept: 'text/html'}});
+    t.equals(options.headers['Accept'], 'application/json', 'accept header set to json');
     del('/foo').then(({url, options}) => {
-      t.equals(options.headers['Accept'], 'text/html', 'accept header now set to html');
-      put('/foo').then(({url, options}) => {
-        t.equals(options.headers['Accept'], 'text/html', 'accept header still set to html');
-        t.end();
-      });
+      t.equals(options.headers['Accept'], 'application/json', 'accept header still set to json');
+      t.end();
     });
   });
 });

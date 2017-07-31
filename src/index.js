@@ -2,18 +2,6 @@ import qs from 'qs';
 import universalFetch from 'isomorphic-fetch';
 import isPlainObject from 'lodash.isplainobject';
 
-let defaults = {
-  credentials: 'same-origin',
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'
-  }
-};
-
-export function setDefaults(defaultOptions) {
-  defaults = defaultOptions;
-}
-
 export function setPromise(Promise) {
   universalFetch.Promise = Promise;
 }
@@ -48,8 +36,8 @@ function serializeBody(contentType, params) {
   }
 }
 
-function fetch(method, path, params = undefined, options = {body: null}) {
-  const req = Object.assign(defaults, options);
+export function fetch(method, path, params = undefined, options = {body: null}) {
+  const req = {...options};
   req.method = method;
   if (params !== undefined && method !== 'GET') {
     req.body = serializeBody(req.headers && req.headers['Content-Type'], params);
@@ -61,4 +49,23 @@ function fetch(method, path, params = undefined, options = {body: null}) {
 export const get = fetch.bind(undefined, 'GET');
 export const post = fetch.bind(undefined, 'POST');
 export const put = fetch.bind(undefined, 'PUT');
+export const patch = fetch.bind(undefined, 'PATCH');
 export const del = fetch.bind(undefined, 'DELETE');
+
+function shorthand(defaults, handler, method) {
+  return (path, params = undefined, options = {body: null}) => {
+    return fetch(method, path, params, {...defaults, ...options}).then(handler);
+  };
+}
+
+function withDefaults(defaults, handler = res => res) {
+  return {
+    get: shorthand(defaults, handler, 'GET'),
+    post: shorthand(defaults, handler, 'POST'),
+    put: shorthand(defaults, handler, 'PUT'),
+    patch: shorthand(defaults, handler, 'PATCH'),
+    del: shorthand(defaults, handler, 'DELETE')
+  };
+}
+
+export default withDefaults;
