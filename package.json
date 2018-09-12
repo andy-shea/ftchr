@@ -2,7 +2,7 @@
   "name": "ftchr",
   "description": "A wrapper around fetch for a nicer API",
   "author": "Andy Shea <aa.shea@gmail.com>",
-  "version": "2.1.0",
+  "version": "2.2.2",
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
