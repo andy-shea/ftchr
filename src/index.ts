@@ -1,17 +1,17 @@
 import qs from 'qs';
 import universalFetch from 'isomorphic-fetch';
-import isPlainObject from 'lodash.isplainobject';
 
-export function setPromise(Promise) {
+export function setPromise(Promise: any) {
+  // @ts-ignore
   universalFetch.Promise = Promise;
 }
 
-function isJsonResponse(res) {
-  const contentType = res.headers.get('Content-Type');
+function isJsonResponse(response: Response) {
+  const contentType = response.headers.get('Content-Type');
   return (contentType && contentType.indexOf('application/json') !== -1);
 }
 
-function parseResponse(response) {
+function parseResponse(response: any): any {
   return new Promise((resolve, reject) => {
     if (response.status === 204) resolve(response);
     Promise.resolve(isJsonResponse(response) ? response.json() : null).then(contents => {
@@ -22,13 +22,13 @@ function parseResponse(response) {
   });
 }
 
-function withQueryString(path, params = {}) {
+function withQueryString(path: string, params = {}) {
   if (!Object.keys(params).length) return path;
   const parts = path.split('?');
   return `${parts[0]}?${qs.stringify({...qs.parse(parts[1]), ...params})}`;
 }
 
-function serializeBody(contentType, params) {
+function serializeBody(contentType: string, params: object) {
   switch (contentType) {
     case 'application/json': return JSON.stringify(params);
     case 'application/x-www-form-urlencoded': return qs.stringify(params);
@@ -36,10 +36,18 @@ function serializeBody(contentType, params) {
   }
 }
 
-export function fetch(method, path, params = undefined, options = {body: null}) {
-  const req = {...options};
+enum Method {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+  DELETE = 'DELETE'
+}
+
+export function fetch(method: Method, path: string, params?: object, options?: {body: null}) {
+  const req: any = {...options};
   req.method = method;
-  if (params !== undefined && method !== 'GET') {
+  if (params !== undefined && method !== Method.GET) {
     req.body = serializeBody(req.headers && req.headers['Content-Type'], params);
   }
   const url = (method === 'GET') ? withQueryString(path, params) : path;
@@ -52,19 +60,21 @@ export const put = fetch.bind(undefined, 'PUT');
 export const patch = fetch.bind(undefined, 'PATCH');
 export const del = fetch.bind(undefined, 'DELETE');
 
-function shorthand(defaults, handler, method) {
-  return (path, params = undefined, options = {body: null}) => {
-    return fetch(method, path, params, {...defaults, ...options}).then(handler);
+type Handler = (response: Response) => Response;
+
+function shorthand(defaults: object, handler: Handler, method: Method) {
+  return (path: string, params?: object, options?: object) => {
+    return fetch(method, path, params, {body: null, ...defaults, ...options}).then(handler);
   };
 }
 
-function withDefaults(defaults, handler = res => res) {
+function withDefaults(defaults: object, handler: Handler = res => res) {
   return {
-    get: shorthand(defaults, handler, 'GET'),
-    post: shorthand(defaults, handler, 'POST'),
-    put: shorthand(defaults, handler, 'PUT'),
-    patch: shorthand(defaults, handler, 'PATCH'),
-    del: shorthand(defaults, handler, 'DELETE')
+    get: shorthand(defaults, handler, Method.GET),
+    post: shorthand(defaults, handler, Method.POST),
+    put: shorthand(defaults, handler, Method.PUT),
+    patch: shorthand(defaults, handler, Method.PATCH),
+    del: shorthand(defaults, handler, Method.DELETE)
   };
 }
 

@@ -1,10 +1,12 @@
 {
+  "extension": [
+    ".ts"
+  ],
   "require": [
-    "babel-register"
+    "ts-node/register"
   ],
   "sourceMap": false,
   "instrument": false,
-  "check-coverage": true,
   "lines": 100,
   "statements": 100,
   "functions": 100,

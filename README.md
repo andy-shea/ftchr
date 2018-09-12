@@ -11,13 +11,14 @@ A wrapper around fetch for a nicer API
 
 ## Usage
 
-GET, POST, PUT, and DELETE requests are made using the correspondingly named function:
+GET, POST, PUT, PATCH, and DELETE requests are made using the correspondingly named function:
 ```javascript
-import {get, post, put, del} from 'ftchr';
+import {get, post, put, patch, del} from 'ftchr';
 
-post('/api/foo') // posts to '/api/foo'
 get('/api/bar') // get request to '/api/bar'
+post('/api/foo') // posts to '/api/foo'
 put('/api/baz') // put request to '/api/baz'
+patch('/api/waldo') // patch request to '/api/waldo'
 del('/api/qux') // delete request to '/api/qux'
 ```
 
