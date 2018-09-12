@@ -60,7 +60,7 @@ export const put = fetch.bind(undefined, 'PUT');
 export const patch = fetch.bind(undefined, 'PATCH');
 export const del = fetch.bind(undefined, 'DELETE');
 
-type Handler = (response: Response) => Response;
+type Handler = (response: Response) => any;
 
 function shorthand(defaults: object, handler: Handler, method: Method) {
   return (path: string, params?: object, options?: object) => {
